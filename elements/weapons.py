@@ -1,4 +1,7 @@
 from abc import ABC, abstractmethod
+from . import colors
+from .config import SCREEN_WIDTH, BULLET_SPEED
+from pygame import sprite, Surface
 
 
 class AbstractWeapon(ABC):
@@ -10,7 +13,7 @@ class AbstractWeapon(ABC):
         self._weight = 10
 
     @abstractmethod
-    def attack(self):
+    def attack(self, start_pos: tuple, speed: int):
         # WILL SHOW THE ANIMATION OF THE WEAPON ATTACKING
         ...
 
@@ -59,17 +62,32 @@ class Sword(AbstractWeapon):
         self._size = 100
         self._weight = 20
 
-    def attack(self):
+    def attack(self, start_pos: tuple, speed: int):
         print("Sword attack")
 
 
 class Gun(AbstractWeapon):
     def __init__(self):
         super().__init__()
-        self._damage = 30
+        self._damage = 20
         self._durability = 100
-        self._size = 50
-        self._weight = 10
+        self._size = 100
+        self._weight = 20
 
-    def attack(self):
-        print("Gun attack")
+    def attack(self, start_pos: tuple, speed: int):
+        return Bullet(start_pos, BULLET_SPEED if speed >= 0 else - BULLET_SPEED)
+
+
+class Bullet(sprite.Sprite):
+    def __init__(self, start_pos, speed=BULLET_SPEED):
+        super().__init__()
+        self.surf = Surface((10, 5))
+        self.surf.fill(colors.BLACK)
+        self.rect = self.surf.get_rect(center=start_pos)
+        self.speed = speed
+
+    def update(self):
+        self.rect.x += self.speed
+        if self.rect.right < 0 or self.rect.left > SCREEN_WIDTH:
+            self.kill()
+

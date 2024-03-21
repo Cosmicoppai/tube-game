@@ -1,5 +1,5 @@
 import pygame
-from elements import Player, Gun, HorizontalTube, VerticalTube
+from elements import Player, Gun, HorizontalTube, VerticalTube, config
 
 
 def generate_tubes():
@@ -14,10 +14,9 @@ if __name__ == "__main__":
 
     pygame.init()
 
-    width, height = 800, 600
-
-    screen = pygame.display.set_mode((width, height))
-    pygame.display.set_caption("Tubi Fire")
+    screen = pygame.display.set_mode((config.SCREEN_WIDTH, config.SCREEN_HEIGHT))
+    screen.fill(config.BACKGROUND_COLOR)
+    pygame.display.set_caption(config.GAME_NAME)
 
     running = True
 
@@ -26,5 +25,5 @@ if __name__ == "__main__":
             if event.type == pygame.QUIT:
                 running = False
 
-        screen.fill((0, 0, 0))
+        pygame.display.update()
         pygame.display.flip()

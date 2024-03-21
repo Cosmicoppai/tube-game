@@ -122,3 +122,5 @@ cython_debug/
 .idea/
 
 tube_py
+
+test.py

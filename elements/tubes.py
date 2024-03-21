@@ -30,6 +30,5 @@ class HorizontalTube(AbstractTube):
         super().__init__(length, position, "x")
 
 
-
 if __name__ == "__main__":
     ...
