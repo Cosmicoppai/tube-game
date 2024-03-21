@@ -1,3 +1,3 @@
-from .weapons import Weapon
+from .weapons import Gun
 from .players import Player
-from .tubes import Tube
+from .tubes import HorizontalTube, VerticalTube

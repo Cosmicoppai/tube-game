@@ -1,16 +1,35 @@
 from abc import ABC, abstractmethod
 
 
-class Tube(ABC):
-    @abstractmethod
-    def position(self, x: int, y: int):
-        ...
+class AbstractTube(ABC):
+    def __init__(self, length: int, position: tuple, alignment: str):
+        self._position = position
+        self._length = length
+        self._alignment = alignment
 
-    @abstractmethod
-    def length(self, length: int):
-        ...
+    @property
+    def position(self):
+        return self._position
 
-    @abstractmethod
-    def alignment(self, alignment: str):
-        # whether tube is aligned in x or y direction
-        ...
+    @property
+    def length(self):
+        return self._length
+
+    @property
+    def alignment(self):
+        return self._alignment
+
+
+class VerticalTube(AbstractTube):
+    def __init__(self, length: int, position: tuple):
+        super().__init__(length, position, "y")
+
+
+class HorizontalTube(AbstractTube):
+    def __init__(self, length: int, position: tuple):
+        super().__init__(length, position, "x")
+
+
+
+if __name__ == "__main__":
+    ...
