@@ -1,6 +1,14 @@
+def generate_tubes():
+    ...
+
+
 if __name__ == "__main__":
     import pygame
     from elements import Player, Tube, Weapon
+
+    player1, player2 = Player(), Player()
+
+    generate_tubes()
 
     pygame.init()
 
