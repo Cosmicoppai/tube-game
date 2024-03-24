@@ -2,10 +2,12 @@ from abc import ABC, abstractmethod
 from .tubes import HorizontalTube, VerticalTube, AbstractTube
 from .config import GRAVITY, SCREEN_WIDTH, SCREEN_HEIGHT, FLOOR_HEIGHT
 from .weapons import AbstractWeapon, Gun
+from pygame.sprite import Sprite
 
 
 class AbstractPlayer(ABC):
-    def __init__(self, weapon: AbstractWeapon = None):
+    def __init__(self, player_id: str, weapon: AbstractWeapon = None):
+        self.id: str = player_id
         self._health = 100
         self._position = (0, 0)
         self._size = 50
@@ -13,14 +15,21 @@ class AbstractPlayer(ABC):
         self.velocity_y = 0
         self.jump_velocity = 15
         self.weapon = weapon
+        self.last_direction = "right"
 
     def move(self, axis: str, direction: str, distance: int) -> None:
         if axis == "x":
-            self.position = (self.position[0] + distance, self.position[1]) if direction == "right" else (
-                self.position[0] - distance, self.position[1])
+            if direction == "right":
+                self.position = (min(self.position[0] + distance, SCREEN_WIDTH - self._size), self.position[1])
+            else:
+                self.position = max(self.position[0] - distance, 0), self.position[1]
+            self.last_direction = direction
+
         elif axis == "y":
-            self.position = (self.position[0], self.position[1] + distance) if direction == "down" else (
-                self.position[0], self.position[1] - distance)
+            if direction == "up":
+                self.position = (self.position[0], min(self.position[1] - distance, 0))
+            else:
+                self.position = (self.position[0], min(self.position[1] + distance, SCREEN_HEIGHT))
 
     def jump(self):
         if self.on_ground:
@@ -86,18 +95,23 @@ class AbstractPlayer(ABC):
     def health(self):
         return self._health
 
+    @health.setter
+    def health(self, value):
+        self._health = value
+
 
 class Player(AbstractPlayer):
 
-    def __init__(self, weapon: AbstractWeapon = Gun()):
-        super().__init__(weapon)
+    def __init__(self, player_id: str, weapon: AbstractWeapon = Gun()):
+        super().__init__(player_id, weapon)
 
-    def attack(self):
-        self.weapon.attack(self.position, 10)
+    def attack(self) -> Sprite:
+        pos = (self.position[0], self.position[1] + self.size // 2)
+        return self.weapon.attack(pos, self.last_direction)
 
 
 if __name__ == "__main__":
-    player = Player()
+    player = Player("player1")
     player.attack()
     print(player.position)
     player.move("x", "right", 10)
