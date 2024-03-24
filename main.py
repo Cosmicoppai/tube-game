@@ -31,11 +31,11 @@ def update_and_render_player(player: Player, player_images, keys, screen, frame_
     if player.id == "player1":
         moving_left = keys[pygame.K_LEFT]
         moving_right = keys[pygame.K_RIGHT]
-        jump_key = pygame.K_UP
+        jump_move = keys[pygame.K_UP]
     else:
         moving_left = keys[pygame.K_a]
         moving_right = keys[pygame.K_d]
-        jump_key = pygame.K_w
+        jump_move = keys[pygame.K_w]
 
     is_running = moving_left or moving_right
 
@@ -43,6 +43,9 @@ def update_and_render_player(player: Player, player_images, keys, screen, frame_
         player.move("x", "left", 5)
     if moving_right:
         player.move("x", "right", 5)
+
+    if jump_move:
+        player.jump()
 
     player.update_position()
 
@@ -88,10 +91,6 @@ if __name__ == "__main__":
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP:
-                    player1.jump()
-                if event.key == pygame.K_w:
-                    player2.jump()
                 if event.key == pygame.K_RETURN:
                     new_bullet = player1.attack()
                     bullets.add(new_bullet)
