@@ -1,7 +1,8 @@
 import pygame
-import os
+from os import path
 from elements import Player, Gun, HorizontalTube, VerticalTube, config
 from pygame.surface import Surface
+from time import sleep
 
 
 def generate_tubes():
@@ -12,10 +13,10 @@ def load_player_images() -> tuple[list[Player], dict[str, dict[str, list[Surface
     players = []
     player_images = {}
     for character in ["player1", "player2"]:
-        character_path = os.path.join(os.path.dirname(__file__), "assets", "Characters", character)
-        idle_image = pygame.image.load(os.path.join(character_path, f"{character}_idle.png"))
-        jump_image = pygame.image.load(os.path.join(character_path, f"{character}_jump.png"))
-        run_image = pygame.image.load(os.path.join(character_path, f"{character}_run.png"))
+        character_path = path.join(path.dirname(__file__), "assets", "Characters", character)
+        idle_image = pygame.image.load(path.join(character_path, f"{character}_idle.png"))
+        jump_image = pygame.image.load(path.join(character_path, f"{character}_jump.png"))
+        run_image = pygame.image.load(path.join(character_path, f"{character}_run.png"))
 
         idle_frames = [idle_image.subsurface((i * (idle_image.get_width() // 4), 0, idle_image.get_width() // 4, idle_image.get_height())) for i in range(4)]
         jump_frames = [jump_image.subsurface((i * (jump_image.get_width() // 8), 0, jump_image.get_width() // 8, jump_image.get_height())) for i in range(8)]
@@ -25,6 +26,20 @@ def load_player_images() -> tuple[list[Player], dict[str, dict[str, list[Surface
         players.append(Player(character))
 
     return players, player_images
+
+
+def load_death_animations() -> list[Surface]:
+    death_image = pygame.image.load(path.join(path.dirname(__file__), "assets", "Effects", "death.png"))
+    death_frame = 8
+    return [death_image.subsurface((i * (death_image.get_width() // death_frame), 0, death_image.get_width() // death_frame, death_image.get_height())) for i in range(death_frame)]
+
+
+def play_death_animation(player: Player, screen, death_frames):
+    for frame in death_frames:
+        screen.fill(config.BACKGROUND_COLOR)
+        screen.blit(frame, player.position)
+        pygame.display.flip()
+        sleep(5 / len(death_frames))
 
 
 def update_and_render_player(player: Player, player_images, keys, screen, frame_counter, frame_delay):
@@ -64,6 +79,17 @@ def update_and_render_player(player: Player, player_images, keys, screen, frame_
     screen.blit(current_frame, player.position)
 
 
+def check_collisions(player1: Player, player2: Player, bullets: pygame.sprite.Group):
+    player_1_rect = pygame.Rect(player1.position, (player1.size, player1.size))
+    player_2_rect = pygame.Rect(player2.position, (player2.size, player2.size))
+    for bullet in bullets:
+        if player_1_rect.colliderect(bullet.rect):
+            player1.health -= player2.weapon.damage
+
+        if player_2_rect.colliderect(bullet.rect):
+            player2.health -= player1.weapon.damage
+
+
 if __name__ == "__main__":
     pygame.init()
 
@@ -78,6 +104,8 @@ if __name__ == "__main__":
     player2 = players[1]
 
     generate_tubes()
+
+    death_frames = load_death_animations()
 
     clock = pygame.time.Clock()
 
@@ -114,6 +142,15 @@ if __name__ == "__main__":
         # Draw all sprites
         for entity in all_sprites:
             screen.blit(entity.surf, entity.rect)
+
+        check_collisions(player1, player2, bullets)
+
+        if player1.health <= 0 or player2.health <= 0:
+            _player = player1 if player1.health <= 0 else player2
+            print(_player.id)
+            players.remove(_player)
+            play_death_animation(_player, screen, death_frames)
+            running = False
 
         frame_counter += 1
         if frame_counter >= frame_delay * len(player_images[player1.id]["idle"]):

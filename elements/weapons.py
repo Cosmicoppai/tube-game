@@ -69,7 +69,7 @@ class Sword(AbstractWeapon):
 class Gun(AbstractWeapon):
     def __init__(self):
         super().__init__()
-        self._damage = 20
+        self._damage = 10
         self._durability = 100
         self._size = 100
         self._weight = 20
