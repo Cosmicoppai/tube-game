@@ -147,7 +147,6 @@ if __name__ == "__main__":
 
         if player1.health <= 0 or player2.health <= 0:
             _player = player1 if player1.health <= 0 else player2
-            print(_player.id)
             players.remove(_player)
             play_death_animation(_player, screen, death_frames)
             running = False
