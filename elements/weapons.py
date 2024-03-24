@@ -13,7 +13,7 @@ class AbstractWeapon(ABC):
         self._weight = 10
 
     @abstractmethod
-    def attack(self, start_pos: tuple, speed: int):
+    def attack(self, start_pos: tuple, direction: str = "right"):
         # WILL SHOW THE ANIMATION OF THE WEAPON ATTACKING
         ...
 
@@ -62,7 +62,7 @@ class Sword(AbstractWeapon):
         self._size = 100
         self._weight = 20
 
-    def attack(self, start_pos: tuple, speed: int):
+    def attack(self, start_pos: tuple, direction: str = "right"):
         print("Sword attack")
 
 
@@ -74,8 +74,10 @@ class Gun(AbstractWeapon):
         self._size = 100
         self._weight = 20
 
-    def attack(self, start_pos: tuple, speed: int):
-        return Bullet(start_pos, BULLET_SPEED if speed >= 0 else - BULLET_SPEED)
+    def attack(self, start_pos: tuple, direction: str = "right") -> sprite.Sprite:
+        if direction == "right":
+            return Bullet(start_pos, BULLET_SPEED)
+        return Bullet(start_pos, -BULLET_SPEED)
 
 
 class Bullet(sprite.Sprite):
@@ -90,4 +92,3 @@ class Bullet(sprite.Sprite):
         self.rect.x += self.speed
         if self.rect.right < 0 or self.rect.left > SCREEN_WIDTH:
             self.kill()
-

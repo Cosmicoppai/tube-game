@@ -67,6 +67,9 @@ if __name__ == "__main__":
     screen = pygame.display.set_mode((config.SCREEN_WIDTH, config.SCREEN_HEIGHT))
     pygame.display.set_caption(config.GAME_NAME)
 
+    all_sprites = pygame.sprite.Group()
+    bullets = pygame.sprite.Group()
+
     players, player_images = load_player_images()
     player1 = players[0]
     player2 = players[1]
@@ -81,7 +84,6 @@ if __name__ == "__main__":
 
     while running:
         clock.tick(60)
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -90,20 +92,35 @@ if __name__ == "__main__":
                     player1.jump()
                 if event.key == pygame.K_w:
                     player2.jump()
+                if event.key == pygame.K_RETURN:
+                    new_bullet = player1.attack()
+                    bullets.add(new_bullet)
+                    all_sprites.add(new_bullet)
+
+                if event.key == pygame.K_f:
+                    new_bullet = player2.attack()
+                    bullets.add(new_bullet)
+                    all_sprites.add(new_bullet)
+
+        # Update all sprites
+        all_sprites.update()
 
         keys = pygame.key.get_pressed()
 
-        screen.fill(config.BACKGROUND_COLOR)  # Clear the screen after drawing the players.
+        screen.fill(config.BACKGROUND_COLOR)
 
         update_and_render_player(player1, player_images, keys, screen, frame_counter, frame_delay)
         update_and_render_player(player2, player_images, keys, screen, frame_counter, frame_delay)
+
+        # Draw all sprites
+        for entity in all_sprites:
+            screen.blit(entity.surf, entity.rect)
 
         frame_counter += 1
         if frame_counter >= frame_delay * len(player_images[player1.id]["idle"]):
             frame_counter = 0
 
-        pygame.display.update()  # You only need this or flip, not both.
+        pygame.display.update()
 
     pygame.quit()
-
 

@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from .tubes import HorizontalTube, VerticalTube, AbstractTube
 from .config import GRAVITY, SCREEN_WIDTH, SCREEN_HEIGHT, FLOOR_HEIGHT
 from .weapons import AbstractWeapon, Gun
+from pygame.sprite import Sprite
 
 
 class AbstractPlayer(ABC):
@@ -14,6 +15,7 @@ class AbstractPlayer(ABC):
         self.velocity_y = 0
         self.jump_velocity = 15
         self.weapon = weapon
+        self.last_direction = "right"
 
     def move(self, axis: str, direction: str, distance: int) -> None:
         if axis == "x":
@@ -21,6 +23,8 @@ class AbstractPlayer(ABC):
                 self.position = (min(self.position[0] + distance, SCREEN_WIDTH - self._size), self.position[1])
             else:
                 self.position = max(self.position[0] - distance, 0), self.position[1]
+            self.last_direction = direction
+
         elif axis == "y":
             if direction == "up":
                 self.position = (self.position[0], min(self.position[1] - distance, 0))
@@ -97,8 +101,9 @@ class Player(AbstractPlayer):
     def __init__(self, player_id: str, weapon: AbstractWeapon = Gun()):
         super().__init__(player_id, weapon)
 
-    def attack(self):
-        self.weapon.attack(self.position, 10)
+    def attack(self) -> Sprite:
+        pos = (self.position[0], self.position[1] + self.size // 2)
+        return self.weapon.attack(pos, self.last_direction)
 
 
 if __name__ == "__main__":
