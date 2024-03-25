@@ -102,11 +102,8 @@ class AbstractPlayer(ABC):
 
 class Player(AbstractPlayer):
 
-    def __init__(self, player_id: str, weapon: AbstractWeapon = None):
+    def __init__(self, player_id: str, weapon: AbstractWeapon = Gun()):
         super().__init__(player_id, weapon)
-        if self.weapon is None:
-            self.weapon = Gun()
-        self.weapon.owner = self
 
     def attack(self) -> Sprite:
         pos = (self.position[0], self.position[1] + self.size // 2)
