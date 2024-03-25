@@ -1,5 +1,4 @@
 import pygame
-from os import path
 from elements import Player, Gun, HorizontalTube, VerticalTube, config
 from pygame.surface import Surface
 from time import sleep
@@ -13,10 +12,10 @@ def load_player_images() -> tuple[list[Player], dict[str, dict[str, list[Surface
     players = []
     player_images = {}
     for character in ["player1", "player2"]:
-        character_path = path.join(path.dirname(__file__), "assets", "Characters", character)
-        idle_image = pygame.image.load(path.join(character_path, f"{character}_idle.png"))
-        jump_image = pygame.image.load(path.join(character_path, f"{character}_jump.png"))
-        run_image = pygame.image.load(path.join(character_path, f"{character}_run.png"))
+        character_path = config.ASSETS_PATH.joinpath("Characters", character)
+        idle_image = pygame.image.load(character_path.joinpath(f"{character}_idle.png"))
+        jump_image = pygame.image.load(character_path.joinpath(f"{character}_jump.png"))
+        run_image = pygame.image.load(character_path.joinpath(f"{character}_run.png"))
 
         idle_frames = [idle_image.subsurface((i * (idle_image.get_width() // 4), 0, idle_image.get_width() // 4, idle_image.get_height())) for i in range(4)]
         jump_frames = [jump_image.subsurface((i * (jump_image.get_width() // 8), 0, jump_image.get_width() // 8, jump_image.get_height())) for i in range(8)]
@@ -29,7 +28,7 @@ def load_player_images() -> tuple[list[Player], dict[str, dict[str, list[Surface
 
 
 def load_death_animations() -> list[Surface]:
-    death_image = pygame.image.load(path.join(path.dirname(__file__), "assets", "Effects", "death.png"))
+    death_image = pygame.image.load(config.ASSETS_PATH.joinpath("Effects", "death.png"))
     death_frame = 8
     return [death_image.subsurface((i * (death_image.get_width() // death_frame), 0, death_image.get_width() // death_frame, death_image.get_height())) for i in range(death_frame)]
 
@@ -102,6 +101,8 @@ def check_collisions(player1: Player, player2: Player, bullets: pygame.sprite.Gr
 if __name__ == "__main__":
     pygame.init()
 
+    background_image = pygame.image.load(config.ASSETS_PATH.joinpath("Platform", "bg1.png"))
+
     screen = pygame.display.set_mode((config.SCREEN_WIDTH, config.SCREEN_HEIGHT))
     pygame.display.set_caption(config.GAME_NAME)
 
@@ -143,7 +144,7 @@ if __name__ == "__main__":
 
         keys = pygame.key.get_pressed()
 
-        screen.fill(config.BACKGROUND_COLOR)
+        screen.blit(background_image, (config.BG_IMAGE_SHIFT, 0))
 
         update_and_render_player(player1, player_images, keys, screen, frame_counter, frame_delay)
         update_and_render_player(player2, player_images, keys, screen, frame_counter, frame_delay)
