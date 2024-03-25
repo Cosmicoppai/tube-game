@@ -11,10 +11,11 @@ class AbstractWeapon(ABC):
         self._position = (0, 0)
         self._size = 50
         self._weight = 10
+        self.owner: object = None
+        self._has_hit = False
 
     @abstractmethod
     def attack(self, start_pos: tuple, direction: str = "right"):
-        # WILL SHOW THE ANIMATION OF THE WEAPON ATTACKING
         ...
 
     @property
@@ -53,6 +54,16 @@ class AbstractWeapon(ABC):
     def weight(self, weight: int):
         self._weight = weight
 
+    @property
+    def has_hit(self):
+        return self._has_hit
+
+    @has_hit.setter
+    def has_hit(self, value: bool):
+        if self._has_hit:
+            return
+        self._has_hit = value
+
 
 class Sword(AbstractWeapon):
     def __init__(self):
@@ -75,9 +86,9 @@ class Gun(AbstractWeapon):
         self._weight = 20
 
     def attack(self, start_pos: tuple, direction: str = "right") -> sprite.Sprite:
-        if direction == "right":
-            return Bullet(start_pos, BULLET_SPEED)
-        return Bullet(start_pos, -BULLET_SPEED)
+        bullet = Bullet(start_pos, BULLET_SPEED if direction == "right" else -BULLET_SPEED)
+        bullet.owner = self.owner
+        return bullet
 
 
 class Bullet(sprite.Sprite):
@@ -87,6 +98,8 @@ class Bullet(sprite.Sprite):
         self.surf.fill(colors.BLACK)
         self.rect = self.surf.get_rect(center=start_pos)
         self.speed = speed
+        self.owner = None
+        self.has_hit = False
 
     def update(self):
         self.rect.x += self.speed
