@@ -34,15 +34,12 @@ def load_death_animations() -> list[Surface]:
     return [death_image.subsurface((i * (death_image.get_width() // death_frame), 0, death_image.get_width() // death_frame, death_image.get_height())) for i in range(death_frame)]
 
 
-def play_death_animation(dead_player: Player, screen, death_frames):
-    extra_space = 10
-    for _ in range(2):
-        for frame in death_frames:
-            clear_rect = pygame.Rect(dead_player.position, (dead_player.size + extra_space, dead_player.size + extra_space))
-            screen.fill(config.BACKGROUND_COLOR, clear_rect)
-            screen.blit(frame, dead_player.position)
-            pygame.display.update(clear_rect)
-            sleep(0.1)
+def play_death_animation(player: Player, screen, death_frames):
+    for frame in death_frames:
+        screen.fill(config.BACKGROUND_COLOR)
+        screen.blit(frame, player.position)
+        pygame.display.flip()
+        sleep(0.1)
 
 
 def update_and_render_player(player: Player, player_images, keys, screen, frame_counter, frame_delay):
@@ -85,18 +82,12 @@ def update_and_render_player(player: Player, player_images, keys, screen, frame_
 def check_collisions(player1: Player, player2: Player, bullets: pygame.sprite.Group):
     player_1_rect = pygame.Rect(player1.position, (player1.size, player1.size))
     player_2_rect = pygame.Rect(player2.position, (player2.size, player2.size))
-
     for bullet in bullets:
-        if bullet.has_hit:
-            continue
+        if player_1_rect.colliderect(bullet.rect):
+            player1.health -= player2.weapon.damage
 
-        if player_1_rect.colliderect(bullet.rect) and bullet.owner.id != player1.id:
-            player1.health -= bullet.owner.weapon.damage
-            bullet.has_hit = True
-
-        if player_2_rect.colliderect(bullet.rect) and bullet.owner.id != player2.id:
-            player2.health -= bullet.owner.weapon.damage
-            bullet.has_hit = True
+        if player_2_rect.colliderect(bullet.rect):
+            player2.health -= player1.weapon.damage
 
 
 if __name__ == "__main__":
@@ -152,11 +143,11 @@ if __name__ == "__main__":
         for entity in all_sprites:
             screen.blit(entity.surf, entity.rect)
 
-        if bullets:
-            check_collisions(player1, player2, bullets)
+        check_collisions(player1, player2, bullets)
 
         if player1.health <= 0 or player2.health <= 0:
             _player = player1 if player1.health <= 0 else player2
+            players.remove(_player)
             play_death_animation(_player, screen, death_frames)
             running = False
 
