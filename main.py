@@ -39,7 +39,7 @@ def play_death_animation(player: Player, screen, death_frames):
         screen.fill(config.BACKGROUND_COLOR)
         screen.blit(frame, player.position)
         pygame.display.flip()
-        sleep(5 / len(death_frames))
+        sleep(0.1)
 
 
 def update_and_render_player(player: Player, player_images, keys, screen, frame_counter, frame_delay):
