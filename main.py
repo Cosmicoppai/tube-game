@@ -1,5 +1,6 @@
 import pygame
 from elements import Player, Gun, HorizontalTube, VerticalTube, config
+from elements.config import FLOOR_HEIGHT
 from pygame.surface import Surface
 from time import sleep
 
@@ -112,6 +113,10 @@ if __name__ == "__main__":
     players, player_images = load_player_images()
     player1 = players[0]
     player2 = players[1]
+
+    # Set spawn points 
+    player1.position = (100, FLOOR_HEIGHT)
+    player2.position = (1000, FLOOR_HEIGHT) 
 
     generate_tubes()
 
