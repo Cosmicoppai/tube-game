@@ -45,15 +45,17 @@ def play_death_animation(dead_player: Player, screen, death_frames):
             sleep(0.1)
 
 
-def update_and_render_player(player: Player, player_images, keys, screen, frame_counter, frame_delay):
+def update_and_render_player(player: Player, player_images, keys, screen, frame_counter, frame_delay, bullets, keys_prev):
     if player.id == "player1":
         moving_left = keys[pygame.K_LEFT]
         moving_right = keys[pygame.K_RIGHT]
         jump_move = keys[pygame.K_UP]
+        shoot = keys[pygame.K_DOWN] and not keys_prev.get(pygame.K_DOWN, False)
     else:
         moving_left = keys[pygame.K_a]
         moving_right = keys[pygame.K_d]
         jump_move = keys[pygame.K_w]
+        shoot = keys[pygame.K_s] and not keys_prev.get(pygame.K_s, False)
 
     is_running = moving_left or moving_right
 
@@ -64,6 +66,15 @@ def update_and_render_player(player: Player, player_images, keys, screen, frame_
 
     if jump_move:
         player.jump()
+
+    
+    player.weapon.has_hit = False
+
+    
+    if shoot:
+        new_bullet = player.attack()
+        bullets.add(new_bullet)
+        all_sprites.add(new_bullet)
 
     player.update_position()
 
@@ -128,35 +139,31 @@ if __name__ == "__main__":
     frame_counter = 0
     frame_delay = 10
 
+    keys_prev = {}
+
     while running:
         clock.tick(60)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN:
-                    new_bullet = player1.attack()
-                    bullets.add(new_bullet)
-                    all_sprites.add(new_bullet)
-
-                if event.key == pygame.K_f:
-                    new_bullet = player2.attack()
-                    bullets.add(new_bullet)
-                    all_sprites.add(new_bullet)
 
         # Update all sprites
         all_sprites.update()
 
-        keys = pygame.key.get_pressed()
+        keys = {pygame.K_DOWN: False, pygame.K_s: False, pygame.K_LEFT: False, pygame.K_RIGHT: False, pygame.K_UP: False, pygame.K_w: False, pygame.K_a: False, pygame.K_d: False}
+        keys_pressed = pygame.key.get_pressed()
+        for key in keys:
+            if keys_pressed[key]:
+                keys[key] = True
 
         screen.blit(background_image, (config.BG_IMAGE_SHIFT, 0))
 
-        update_and_render_player(player1, player_images, keys, screen, frame_counter, frame_delay)
-        update_and_render_player(player2, player_images, keys, screen, frame_counter, frame_delay)
+        update_and_render_player(player1, player_images, keys, screen, frame_counter, frame_delay, bullets, keys_prev)
+        update_and_render_player(player2, player_images, keys, screen, frame_counter, frame_delay, bullets, keys_prev)
 
         # Draw all sprites
         for entity in all_sprites:
-            screen.blit(entity.surf, entity.rect)
+            screen.blit(entity.image, entity.rect)
 
         if bullets:
             check_collisions(player1, player2, bullets)
@@ -171,5 +178,7 @@ if __name__ == "__main__":
             frame_counter = 0
 
         pygame.display.update()
+
+        keys_prev = keys.copy()
 
     pygame.quit()

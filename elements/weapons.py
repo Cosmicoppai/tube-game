@@ -1,7 +1,10 @@
+import pygame
 from abc import ABC, abstractmethod
 from . import colors
-from .config import SCREEN_WIDTH, BULLET_SPEED
+from .config import SCREEN_WIDTH, BULLET_SPEED, ASSETS_PATH
+from elements import config
 from pygame import sprite, Surface
+
 
 
 class AbstractWeapon(ABC):
@@ -94,9 +97,8 @@ class Gun(AbstractWeapon):
 class Bullet(sprite.Sprite):
     def __init__(self, start_pos, speed=BULLET_SPEED):
         super().__init__()
-        self.surf = Surface((10, 5))
-        self.surf.fill(colors.BLACK)
-        self.rect = self.surf.get_rect(center=start_pos)
+        self.image = pygame.image.load(config.ASSETS_PATH.joinpath("Weapons", "bullet.png"))
+        self.rect = self.image.get_rect(center=start_pos)
         self.speed = speed
         self.owner = None
         self.has_hit = False
